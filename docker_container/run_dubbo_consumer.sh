@@ -6,4 +6,4 @@ docker run -d \
     --mount type=bind,source=$HOME/deploy/src/,target=/data/src \
     --mount type=bind,source=$HOME/log/,target=/var/log/ \
     -p 1310:1011 \
-    java_env:v3 /data/src/deploy_dubbo_client.sh 
+    java_env:v1 /data/src/deploy_dubbo_client.sh 

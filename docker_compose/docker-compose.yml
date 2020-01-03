@@ -1,0 +1,72 @@
+version: '3'
+
+services:
+  nginx:
+    image: nginx:latest
+    networks: 
+      - my_docker_net
+    container_name: nginx
+    ports:
+      - '80:80'
+    volumes:
+      - $HOME/deploy/data/nginx/conf.d:/etc/nginx/conf.d
+      - $HOME/deploy/data/web:/data/web
+      - $HOME/log/nginx:/var/log/nginx
+
+  redis:
+    image: redis:latest
+    networks: 
+      - my_docker_net
+    container_name: redis
+    ports:
+      - '6379:6379'
+    command: redis-server --requirepass "123456"
+
+  mysql:
+    image: mysql:5.7
+    ports: 
+      - '13306:3306'
+    networks: 
+      - my_docker_net
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: '123456'
+    volumes:
+      - $HOME/deploy/data/mysql:/var/lib/mysql
+
+  zookeeper:
+    image: zookeeper:latest
+    ports: 
+      - 2181:2181
+    networks: 
+      - my_docker_net
+    container_name: zookeeper
+
+  bill_server_provider:
+    image: java_env:v1
+    networks: 
+      - my_docker_net
+    container_name: bill_server_provider
+    command: /data/src/deploy_dubbo_server.sh
+    volumes:
+      - $HOME/deploy/data/server-dubbo:/data/deploy/server
+      - $HOME/deploy/src:/data/src
+      - $HOME/log/:/var/log/
+
+  bill_web_consumer:
+    image: java_env:v1
+    ports: 
+      - 1310:1011
+    networks: 
+      - my_docker_net
+    container_name: bill_web_consumer
+    volumes:
+      - $HOME/deploy/data/server-dubbo:/data/deploy/server
+      - $HOME/deploy/src:/data/src
+      - $HOME/log/:/var/log/
+    command: /data/src/deploy_dubbo_client.sh
+
+networks:
+  my_docker_net:
+    external:
+      name: my_docker_net
